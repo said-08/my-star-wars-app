@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import c3po  from "../assets/JD-34-512.webp"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { HambugerMenu } from "./HamburgerMenu";
 
 const navigation = [
