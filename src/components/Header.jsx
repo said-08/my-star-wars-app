@@ -6,7 +6,7 @@ import { HambugerMenu } from "./HamburgerMenu";
 const navigation = [
   {
     id: 1,
-    url: "/mi-album",
+    url: "/",
     title: "Mi Álbum"
   },
   {
