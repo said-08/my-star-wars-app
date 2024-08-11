@@ -6,10 +6,10 @@ export const AlbumContext = createContext();
 export const AlbumProvider = ({ children }) => {
   const [timer, setTimer] = useState(null);
   const [packs, setPacks] = useState([
-    { id: 1, opened: false, locked: false },
-    { id: 2, opened: false, locked: false },
-    { id: 3, opened: false, locked: false },
-    { id: 4, opened: false, locked: false },
+    { id: 1, opened: false, locked: false, completed: false},
+    { id: 2, opened: false, locked: false, completed: false},
+    { id: 3, opened: false, locked: false, completed: false},
+    { id: 4, opened: false, locked: false, completed: false},
   ]);
   const [album, setAlbum] = useState([]);
 
