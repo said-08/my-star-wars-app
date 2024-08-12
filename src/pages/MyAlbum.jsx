@@ -9,42 +9,12 @@ const MyAlbum = () => {
   const { album } = useContext(AlbumContext);
 
   useEffect(() => {
-    // Cargar todas las cartas desde el localStorage
     const storedCards = JSON.parse(localStorage.getItem('allCards'));
     setAllCards(storedCards || []);
   }, []);
 
   const filteredCards = allCards.filter(card => card.section === selectedSection);
   const unlockedCardIds = album.map(card => card.id);
-
-  // const fetchData = async (page = 1) => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await fetch(`https://swapi.dev/api/people/?page=${page}`);
-  //     const result = await response.json();
-  //     setData(prevData => [...prevData, ...result.results]);
-  //     setHasNextPage(result.next !== null);
-  //     setCurrentPage(page);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     if (selectedFilter) {
-  //       const cards = await fetchAllAvailableCards(selectedFilter);
-  //       setFilteredCards(cards);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [selectedFilter, fetchAllAvailableCards]);
 
   return (
     <div className="container mx-auto p-4">
@@ -87,9 +57,9 @@ const MyAlbum = () => {
       <h1 className="text-center mb-4 text-4xl font-semibold">{selectedSection}</h1>
       {/* Mostrar tarjetas filtradas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredCards.length === 0 && (
+        {/* {filteredCards.length === 0 && (
           <div><h1>No hay láminas en esta sección.</h1></div>
-        )}
+        )} */}
         {filteredCards.map(card => (
           <Card
             key={card.id}

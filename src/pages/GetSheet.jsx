@@ -7,6 +7,7 @@ const GetSheet = () => {
   const { packs, timer, handlePackClick } = useContext(AlbumContext);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMain, setLoadingMain] = useState(false);
 
   useEffect(() => {
     const allPacksReady = packs.every(pack => !pack.opened);
@@ -43,12 +44,22 @@ const GetSheet = () => {
   };
 
   const fetchAndStoreAllCards = async () => {
-    const peopleCards = await fetchAllPages('people');
-    const starshipCards = await fetchAllPages('starships');
-    const filmCards = await fetchAllPages('films');
+    setLoadingMain(true);
 
-    const allCards = [...peopleCards, ...starshipCards, ...filmCards];
-    localStorage.setItem('allCards', JSON.stringify(allCards));
+    const allCardsStored = JSON.parse(localStorage.getItem('allCards'));
+
+    if (!allCardsStored || allCardsStored.length === 0) {
+      const [peopleCards, starshipCards, filmCards] = await Promise.all([
+        fetchAllPages('people'),
+        fetchAllPages('starships'),
+        fetchAllPages('films')
+      ]);
+
+      const allCards = [...peopleCards, ...starshipCards, ...filmCards];
+      localStorage.setItem('allCards', JSON.stringify(allCards));
+    }
+
+    setLoadingMain(false);
   };
 
   const defineCategory = (id, section) => {
@@ -63,17 +74,14 @@ const GetSheet = () => {
     fetchAndStoreAllCards();
   }, []);
 
-  // Generates a random configuration of cards
   const generateRandomCards = () => {
     const allCards = JSON.parse(localStorage.getItem('allCards')) || [];
     
-    // Define the two configurations
     const configurations = [
       { films: 1, people: 3, starships: 1 },
       { films: 0, people: 3, starships: 2 }
     ];
     
-    // Pick a random configuration
     const config = configurations[Math.floor(Math.random() * configurations.length)];
     
     const getCards = (type, count) => {
@@ -81,7 +89,6 @@ const GetSheet = () => {
       return filteredCards.sort(() => 0.5 - Math.random()).slice(0, count);
     };
     
-    // Generate cards based on the selected configuration
     const randomCards = [
       ...getCards('Peliculas', config.films),
       ...getCards('Personaje', config.people),
@@ -112,7 +119,15 @@ const GetSheet = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-3xl font-bold underline pt-3 text-center mb-6">Sobres Disponibles</h2>
+      {
+        loadingMain ? (<div className="text-center">
+          <p>Cargando PAQUETES, por favor espera...</p>
+          <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+        </div>) : (
+          <>
+          <h2 className="text-3xl font-bold underline pt-3 text-center mb-6">Sobres Disponibles</h2>
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {packs.map(pack => (
           <Envelope
@@ -136,6 +151,9 @@ const GetSheet = () => {
           </div>
         }
       </div>
+          </>
+        )
+      }
     </div>
   );
 }
