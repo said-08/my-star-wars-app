@@ -23,20 +23,52 @@ const GetSheet = () => {
     }
   }, [packs])
 
+  const getRandomConfiguration = () => {
+    const configurations = [
+      { films: 1, people: 3, starships: 1 },
+      { films: 0, people: 3, starships: 2 }
+    ];
+    return configurations[Math.floor(Math.random() * configurations.length)];
+  };
+
+  const defineCategory = (id, section) => {
+    if (section === "people" && id <= 20 || section === "starships" && id <= 17 || section === "films") {
+      return 'Especial'
+    } else {
+      return 'Regular'
+    }
+  }
+
+  const fetchResources = async (type, count) => {
+    const response = await fetch(`https://swapi.dev/api/${type}/`);
+    const data = await response.json();
+    return data.results.slice(0, count).map(item => ({
+      id: item.url.split('/').filter(Boolean).pop(),
+      name: type === 'films' ? item.title : item.name,
+      section: type === 'people' ? 'Personaje' : type === 'starships' ? 'Naves' : 'Peliculas',
+      category: defineCategory(item.url.split('/').filter(Boolean).pop(), type)
+    }));
+  };
+
   const openPack = async (packId) => {
     if (packs.find(pack => pack.id === packId && !pack.locked && !pack.opened)) {
       setLoading(true);
-      const response = await fetch('https://swapi.dev/api/people/');
-      const data = await response.json();
-      const newCards = data.results.map(card => {
-        const idFixed = card.url.split('/').filter(Boolean).pop();
-        return { id: idFixed, name: card.name };
-      });
+      const configuration = getRandomConfiguration();
+      const newCards = [];
 
-      const updatedCards = [...cards, ...newCards];
-      setCards(updatedCards);
+      if (configuration.films > 0) {
+        const filmCards = await fetchResources('films', configuration.films);
+        newCards.push(...filmCards);
+      }
+
+      const peopleCards = await fetchResources('people', configuration.people);
+      const starshipCards = await fetchResources('starships', configuration.starships);
+
+      newCards.push(...peopleCards, ...starshipCards);
+
+      setCards(prevCards => [...prevCards, ...newCards]);
       console.log("CARTAS", newCards)
-      localStorage.setItem('openedCards', JSON.stringify(updatedCards))
+      localStorage.setItem('openedCards', JSON.stringify(newCards))
       handlePackClick(packId);
       setLoading(false);
     }
@@ -55,7 +87,7 @@ const GetSheet = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-2xl mb-4">Sobres Disponibles</h2>
+      <h2 className="text-3xl font-bold underline pt-3 text-center mb-6">Sobres Disponibles</h2>
       <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {packs.map(pack => (
           <Envelope
@@ -70,11 +102,11 @@ const GetSheet = () => {
       {timer && <p className="mt-4">Los sobres restantes estarán disponibles en: {timer} segundos</p>}
 
       <div className="mt-8">
-        <h3 className="text-xl mb-4">Láminas Obtenidas</h3>
+        <h3 className="text-3xl font-bold underline mb-4">Láminas Obtenidas</h3>
         {loading ? <p>Cargando láminas...</p> :
           <div className="grid grid-cols-3 gap-4">
             {cards.map((card,i) => (
-              <Card idCard={card.id} category={"Espcial"} name={card.name} />
+              <Card index={i} idCard={card.id} category={"Especial"} name={card.name} section={card.section} />
             ))}
           </div>
         }

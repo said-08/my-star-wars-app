@@ -12,10 +12,45 @@ export const AlbumProvider = ({ children }) => {
     { id: 4, opened: false, locked: false, completed: false},
   ]);
   const [album, setAlbum] = useState([]);
+  const [allAvailableCards, setAllAvailableCards] = useState({});
 
   const startTimer = () => {
     setTimer(60);
   };
+
+  const fetchAllAvailableCards = async (type) => {
+    const urls = {
+      people: 'https://swapi.dev/api/people/',
+      starships: 'https://swapi.dev/api/starships/',
+      films: 'https://swapi.dev/api/films/'
+    };
+
+    const response = await fetch(urls[type]);
+    const data = await response.json();
+
+    return data.results.map(item => ({
+      id: item.url.split('/').filter(Boolean).pop(),
+      name: type === 'films' ? item.title: item.name,
+      section: type === 'people' ? 'Personaje' : type === 'starships' ? 'Naves' : 'Películas',
+      category: 'Especial'
+    }));
+  };
+
+  useEffect(() => {
+    const loadAllCards = async () => {
+      const peopleCards = await fetchAllAvailableCards('people');
+      const starshipsCards = await fetchAllAvailableCards('starships');
+      const filmsCards = await fetchAllAvailableCards('films');
+      
+      setAllAvailableCards({
+        people: peopleCards,
+        starships: starshipsCards,
+        films: filmsCards
+      });
+    };
+
+    loadAllCards();
+  }, []);
 
   useEffect(() => {
     if (timer !== null) {
@@ -41,14 +76,15 @@ export const AlbumProvider = ({ children }) => {
     startTimer();
   };
 
-  const addToAlbum = (cardId) => {
-    if (!album.includes(cardId)) {
-      setAlbum([...album, cardId]);
+  const addToAlbum = (card) => {
+    if (!album.some(item => item.id === card.id)) {
+      setAlbum([...album, card]);
+    console.log("que hay", album)
     }
   };
 
   return (
-    <AlbumContext.Provider value={{ packs, timer, handlePackClick, addToAlbum, album }}>
+    <AlbumContext.Provider value={{ packs, timer, handlePackClick, addToAlbum, album, fetchAllAvailableCards, allAvailableCards }}>
       {children}
     </AlbumContext.Provider>
   );

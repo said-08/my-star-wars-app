@@ -12,7 +12,7 @@ const Envelope = ({ id, onClick, disabled, isOpen }) => {
 
   return (
     <div
-      className={`relative w-40 h-40 perspective-1000 cursor-pointer ${disabled ? 'opacity-50' : ''}`}
+      className={`relative w-56 h-56 perspective-1000 cursor-pointer ${disabled ? 'opacity-50' : ''}`}
       onClick={handleClick}
     >
       <img
