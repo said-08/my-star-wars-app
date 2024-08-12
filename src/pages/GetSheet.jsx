@@ -35,6 +35,7 @@ const GetSheet = () => {
 
       const updatedCards = [...cards, ...newCards];
       setCards(updatedCards);
+      console.log("CARTAS", newCards)
       localStorage.setItem('openedCards', JSON.stringify(updatedCards))
       handlePackClick(packId);
       setLoading(false);
@@ -64,14 +65,6 @@ const GetSheet = () => {
           disabled={pack.locked || pack.opened}
           isOpen={pack.opened}
         />
-          // <button
-            // key={pack.id}
-            // onClick={() => openPack(pack.id)}
-            // disabled={pack.locked || pack.opened}
-            // className={`p-4 rounded-lg ${pack.locked ? 'bg-gray-400' : 'bg-blue-500'}`}
-          // >
-          //{pack.opened ? 'Abierto' : `Sobre ${pack.id}`} 
-          //</button> 
         ))}
       </div>
       {timer && <p className="mt-4">Los sobres restantes estarán disponibles en: {timer} segundos</p>}
