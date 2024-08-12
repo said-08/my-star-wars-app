@@ -2,74 +2,56 @@
 import { useContext, useEffect, useState } from "react";
 import Card from "../components/Cards";
 import { AlbumContext } from "../context/AlbumContext";
-import { useNavigate } from "react-router-dom";
 
 const MyAlbum = () => {
-  const navigate = useNavigate();
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const { album, fetchAllAvailableCards, allAvailableCards } = useContext(AlbumContext);
-  const [selectedFilter, setSelectedFilter] = useState(''); // Default filter value
-  const [filteredCards, setFilteredCards] = useState([]);
-
-  const fetchData = async (page = 1) => {
-    setLoading(true);
-    try {
-      const response = await fetch(`https://swapi.dev/api/people/?page=${page}`);
-      const result = await response.json();
-      setData(prevData => [...prevData, ...result.results]);
-      setHasNextPage(result.next !== null);
-      setCurrentPage(page);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selectedSection, setSelectedSection] = useState('Personaje');
+  const [allCards, setAllCards] = useState([]);
+  const { album } = useContext(AlbumContext);
 
   useEffect(() => {
-    fetchData();
+    // Cargar todas las cartas desde el localStorage
+    const storedCards = JSON.parse(localStorage.getItem('allCards'));
+    setAllCards(storedCards || []);
   }, []);
 
-  const loadMore = () => {
-    if (hasNextPage) {
-      fetchData(currentPage + 1);
-    }
-  };
+  const filteredCards = allCards.filter(card => card.section === selectedSection);
+  const unlockedCardIds = album.map(card => card.id);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (selectedFilter) {
-        const cards = await fetchAllAvailableCards(selectedFilter);
-        setFilteredCards(cards);
-      }
-    };
-    fetchData();
-  }, [selectedFilter, fetchAllAvailableCards]);
+  // const fetchData = async (page = 1) => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch(`https://swapi.dev/api/people/?page=${page}`);
+  //     const result = await response.json();
+  //     setData(prevData => [...prevData, ...result.results]);
+  //     setHasNextPage(result.next !== null);
+  //     setCurrentPage(page);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (selectedFilter) {
+  //       const cards = await fetchAllAvailableCards(selectedFilter);
+  //       setFilteredCards(cards);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [selectedFilter, fetchAllAvailableCards]);
 
   return (
     <div className="container mx-auto p-4">
-      <div className="mb-4">
-        <label htmlFor="filter" className="mr-2">Filtrar por sección:</label>
-        <select
-          id="filter"
-          value={selectedFilter}
-          onChange={(e) => setSelectedFilter(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">Selecciona una sección</option>
-          <option value="people">Personajes</option>
-          <option value="starships">Naves</option>
-          <option value="films">Películas</option>
-        </select>
-      </div>
-
       <div className="mt-8 mb-8 relative gap-15 flex justify-center">
         <button
-          onClick={() => navigate('/section/people')}
-          className="bg-[#5f2160]  text-white p-2 rounded rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
+          onClick={() => setSelectedSection('Personaje')}
+          className="bg-[#5f2160] text-white p-2 rounded rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
         >
           <div className="flex flex-row gap-2 ">
             Ver Personajes
@@ -79,8 +61,8 @@ const MyAlbum = () => {
           </div>
         </button>
         <button
-          onClick={() => navigate('/section/starships')}
-          className="bg-[#5f2160]  text-white p-2 rounded ml-2 rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
+          onClick={() => setSelectedSection('Naves')}
+          className="bg-[#5f2160] text-white p-2 rounded ml-2 rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
         >
           <div className="flex flex-row gap-2 ">
             Ver Naves
@@ -90,8 +72,8 @@ const MyAlbum = () => {
           </div>
         </button>
         <button
-          onClick={() => navigate('/section/films')}
-          className="bg-[#5f2160]  text-white p-2 rounded ml-2 rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
+          onClick={() => setSelectedSection('Peliculas')}
+          className="bg-[#5f2160] text-white p-2 rounded ml-2 rounded-t-2xl hover:-translate-y-1 transition-all duration-300"
         >
           <div className="flex flex-row gap-2 ">
             Ver Películas
@@ -102,10 +84,10 @@ const MyAlbum = () => {
         </button>
         <div className="absolute bg-[#5f2160] h-[2px] w-full bottom-0"></div>
       </div>
-
+      <h1 className="text-center mb-4 text-4xl font-semibold">{selectedSection}</h1>
       {/* Mostrar tarjetas filtradas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {filteredCards.length === 0 && selectedFilter && (
+        {filteredCards.length === 0 && (
           <div><h1>No hay láminas en esta sección.</h1></div>
         )}
         {filteredCards.map(card => (
@@ -115,6 +97,7 @@ const MyAlbum = () => {
             category={card.category}
             name={card.name}
             section={card.section}
+            locked={!unlockedCardIds.includes(card.id)}
           />
         ))}
       </div>

@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { AlbumContext } from "../context/AlbumContext";
 
 /* eslint-disable react/prop-types */
-const Card = ({ locked, name, category, idCard, section, inPage }) => {
+const Card = ({ locked, name, category, idCard, section, inPage, onCardAction }) => {
   const { addToAlbum, album } = useContext(AlbumContext);
 
   const handleAddToAlbum = () => {
@@ -14,6 +14,10 @@ const Card = ({ locked, name, category, idCard, section, inPage }) => {
       section: section
     };
     addToAlbum(card);
+
+    if (onCardAction) {
+      onCardAction(idCard);
+    }
   };
   
   return (
@@ -24,7 +28,7 @@ const Card = ({ locked, name, category, idCard, section, inPage }) => {
           <p className="text-gray-50 text-sm">Lamina # {idCard} de la sección: <span className="text-lg font-semibold">{section}</span></p>
         </div>
         <p className="text-gray-900 my-4 text-2xl font-extrabold text-center">{name}</p>
-        <p className="text-gray-700 text-base"><span className="font-bold underline">Categoría:</span> {category}</p>
+        <p className="text-gray-700 text-base flex gap-1"><span className="font-bold underline">Categoría:</span > <div className={`${category === "Especial" ? "bg-[#d3a334]" :  'bg-blue-900'} text-center text-yellow-50 w-[23%] rounded`}>{category}</div></p>
         {!inPage &&
           <button
             onClick={handleAddToAlbum}
