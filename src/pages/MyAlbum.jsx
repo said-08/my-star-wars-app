@@ -98,6 +98,7 @@ const MyAlbum = () => {
             name={card.name}
             section={card.section}
             locked={!unlockedCardIds.includes(card.id)}
+            inPage={true}
           />
         ))}
       </div>
