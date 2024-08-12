@@ -8,18 +8,7 @@ const GetSheet = () => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const allPacksReady = packs.every(pack => !pack.opened);
-    if (allPacksReady) {
-      localStorage.removeItem('openedCards');
-    } else {
-      const storedCards = JSON.parse(localStorage.getItem('openedCards'));
-      if (storedCards) {
-        setCards(storedCards);
-      }
-    }
-  }, [packs]);
-
+  // Fetch all pages for a specific type (e.g., 'people', 'starships', 'films')
   const fetchAllPages = async (type) => {
     let allCards = [];
     let page = 1;
@@ -42,6 +31,7 @@ const GetSheet = () => {
     return allCards;
   };
 
+  // Fetch all cards and store them in localStorage
   const fetchAndStoreAllCards = async () => {
     const peopleCards = await fetchAllPages('people');
     const starshipCards = await fetchAllPages('starships');
@@ -51,6 +41,7 @@ const GetSheet = () => {
     localStorage.setItem('allCards', JSON.stringify(allCards));
   };
 
+  // Define the category based on certain rules
   const defineCategory = (id, section) => {
     if (section === "people" && id <= 20 || section === "starships" && id <= 17 || section === "films") {
       return 'Especial';
@@ -60,35 +51,15 @@ const GetSheet = () => {
   };
 
   useEffect(() => {
+    // Fetch and store all cards when component mounts
     fetchAndStoreAllCards();
   }, []);
 
-  // Generates a random configuration of cards
+  // Generate 5 random cards from the stored data
   const generateRandomCards = () => {
     const allCards = JSON.parse(localStorage.getItem('allCards')) || [];
-    
-    // Define the two configurations
-    const configurations = [
-      { films: 1, people: 3, starships: 1 },
-      { films: 0, people: 3, starships: 2 }
-    ];
-    
-    // Pick a random configuration
-    const config = configurations[Math.floor(Math.random() * configurations.length)];
-    
-    const getCards = (type, count) => {
-      const filteredCards = allCards.filter(card => card.section === type);
-      return filteredCards.sort(() => 0.5 - Math.random()).slice(0, count);
-    };
-    
-    // Generate cards based on the selected configuration
-    const randomCards = [
-      ...getCards('Peliculas', config.films),
-      ...getCards('Personaje', config.people),
-      ...getCards('Naves', config.starships)
-    ];
-    
-    return randomCards;
+    const shuffled = allCards.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 5);
   };
 
   const openPack = async (packId) => {
@@ -96,18 +67,12 @@ const GetSheet = () => {
       setLoading(true);
 
       const newCards = generateRandomCards();
-      console.log("DATA", newCards);
+      console.log("hola",newCards)
       setCards(prevCards => [...prevCards, ...newCards]);
       localStorage.setItem('openedCards', JSON.stringify(newCards));
       handlePackClick(packId);
       setLoading(false);
     }
-  };
-
-  const handleCardAction = (cardId) => {
-    const updatedCards = cards.filter(card => card.id !== cardId);
-    setCards(updatedCards);
-    localStorage.setItem('openedCards', JSON.stringify(updatedCards));
   };
 
   return (
@@ -131,7 +96,7 @@ const GetSheet = () => {
         {loading ? <p>Cargando láminas...</p> :
           <div className="grid grid-cols-3 gap-4">
             {cards.map((card, i) => (
-              <Card key={i} onCardAction={handleCardAction} idCard={card.id} category={card.category} name={card.name} section={card.section} />
+              <Card key={i} index={i} idCard={card.id} category={card.category} name={card.name} section={card.section} />
             ))}
           </div>
         }
