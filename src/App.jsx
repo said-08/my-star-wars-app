@@ -4,7 +4,6 @@ import MyAlbum from "./pages/MyAlbum"
 import GetSheet from "./pages/GetSheet"
 import NotFound from "./components/NotFound"
 import { AlbumProvider } from "./context/AlbumContext"
-import Section from "./pages/Section"
 
 const App = () => {
 
@@ -16,7 +15,6 @@ const App = () => {
           <Route path="/" element={<MyAlbum/>}/>
           <Route path="/obtener-lamina" element={<GetSheet/>}/>
           <Route path="*" element={<NotFound />} />
-          <Route path="/section/:section" element={<Section />} />
         </Routes>
         
       </div>
